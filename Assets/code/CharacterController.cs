@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class CharacterController : MonoBehaviour
 {
+    protected MovementState movementState;
     // Base movement speed of the character being controlled
     [SerializeField]
     protected float baseMovementSpeed;
@@ -12,48 +13,120 @@ public class CharacterController : MonoBehaviour
     [SerializeField]
     protected float baseJumpStrength;
 
+    [SerializeField, ReadOnly]
+    protected bool grounded;
+
+    private Rigidbody rb;
+    protected Rigidbody rigidBody
+    {
+        get
+        {
+            if(!this.rb)
+            {
+                this.rb = this.gameObject.GetComponent<Rigidbody>();
+            }
+            return this.rb;
+        }
+    }
+
+    private Collider coll;
+    protected Collider collider
+    {
+        get
+        {
+            if(!this.coll)
+            {
+                this.coll = this.gameObject.GetComponent<Collider>();
+            }
+            return this.coll;
+        }
+    }
+
     // TODO: This should be calculated from a stats system
     private float movementSpeed => this.baseMovementSpeed;
 
-    // Start is called before the first frame update
-    void Start()
+    private void FixedUpdate()
     {
-        
+        if(this.collider)
+        {
+            
+            Debug.DrawRay(this.collider.bounds.center, this.collider.transform.TransformDirection(Vector3.down), Color.red);
+            this.grounded = Physics.Raycast(this.collider.bounds.center, this.collider.transform.TransformDirection(Vector3.down), 1);
+        }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-    
     protected void Move(Vector3 direction, float speed)
     {
+        //this.rigidBody.MovePosition(this.rigidBody.transform.position + (direction * speed * Time.deltaTime));
         this.transform.position += direction * speed * Time.deltaTime;
     }
 
     protected void Jump()
     {
-
+        if(this.grounded)
+        {
+            this.rigidBody.AddForce(Vector3.up * this.baseJumpStrength);
+        }
     }
     
-    protected void MoveForward()
+    protected void MoveForward(bool active)
     {
-        this.Move(this.transform.forward, this.movementSpeed);
+        if(active)
+        {
+            this.Move(this.transform.forward, this.movementSpeed);
+            this.movementState |= MovementState.Forward;
+        }
+        else
+        {
+            this.movementState &= ~MovementState.Forward;
+        }
     }
 
-    protected void MoveBackwards()
+    protected void MoveBackwards(bool active)
     {
-        this.Move(-this.transform.forward, this.movementSpeed);
+        if(active)
+        {
+            this.Move(-this.transform.forward, this.movementSpeed);
+            this.movementState |= MovementState.Backward;
+        }
+        else
+        {
+            this.movementState &= ~MovementState.Backward;
+        }
     }
 
-    protected void MoveRight()
+    protected void MoveRight(bool active)
     {
-        this.Move(this.transform.right, this.movementSpeed);
+        if(active) 
+        {
+            this.Move(this.transform.right, this.movementSpeed);
+            this.movementState |= MovementState.Right;
+        }
+        else 
+        {
+            this.movementState &= ~MovementState.Right;
+        }
     }
 
-    protected void MoveLeft()
+    protected void MoveLeft(bool active)
     {
-        this.Move(-this.transform.right, this.movementSpeed);
+        if(active) 
+        {
+            this.Move(-this.transform.right, this.movementSpeed);
+            this.movementState |= MovementState.Left;
+        }
+        else
+        {
+            this.movementState &= ~MovementState.Left;
+        }
     }
+}
+
+public enum MovementState
+{
+    Still       = 0b0000,
+    Forward     = 0b0001,
+    Backward    = 0b0010,
+    Right       = 0b0100,
+    Left        = 0b1000
 }
