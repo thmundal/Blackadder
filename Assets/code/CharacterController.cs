@@ -16,6 +16,19 @@ public class CharacterController : MonoBehaviour
     [SerializeField, ReadOnly]
     protected bool grounded;
 
+    private Animator anim;
+    protected Animator animator
+    {
+        get
+        {
+            if(!this.anim)
+            {
+                this.anim = this.GetComponentInChildren<Animator>();
+            }
+            return this.anim;
+        }
+    }
+
     private Rigidbody rb;
     protected Rigidbody rigidBody
     {
@@ -29,14 +42,14 @@ public class CharacterController : MonoBehaviour
         }
     }
 
-    private Collider coll;
-    protected Collider collider
+    private CapsuleCollider coll;
+    protected CapsuleCollider collider
     {
         get
         {
             if(!this.coll)
             {
-                this.coll = this.gameObject.GetComponent<Collider>();
+                this.coll = this.GetComponentInChildren<CapsuleCollider>();
             }
             return this.coll;
         }
@@ -44,14 +57,28 @@ public class CharacterController : MonoBehaviour
 
     // TODO: This should be calculated from a stats system
     private float movementSpeed => this.baseMovementSpeed;
-
+    public void Update()
+    {
+        if(this.grounded)
+        {
+            this.animator.SetBool("jumping", false);
+        } 
+        else
+        {
+            this.animator.SetBool("jumping", true);
+        }
+        this.animator.SetBool("forward", (this.movementState & MovementState.Forward) != 0);
+        this.animator.SetBool("strafe_left", (this.movementState & MovementState.Left) != 0);
+        this.animator.SetBool("strafe_right", (this.movementState & MovementState.Right) != 0);
+    }
     private void FixedUpdate()
     {
         if(this.collider)
         {
-            
-            Debug.DrawRay(this.collider.bounds.center, this.collider.transform.TransformDirection(Vector3.down), Color.red);
-            this.grounded = Physics.Raycast(this.collider.bounds.center, this.collider.transform.TransformDirection(Vector3.down), 1);
+            Vector3 center = this.collider.bounds.center;
+            float length = (this.collider.height / 2) + 0.05f;
+            Debug.DrawRay(this.collider.bounds.center, this.collider.transform.TransformDirection(Vector3.down) * length, Color.red);
+            this.grounded = Physics.Raycast(this.collider.bounds.center, this.collider.transform.TransformDirection(Vector3.down), length);
         }
     }
 

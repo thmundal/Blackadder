@@ -31,8 +31,9 @@ public class PlayerController : CharacterController
     }
 
     // Update is called once per frame
-    void Update()
+    public new void Update()
     {
+        base.Update();
         this.MoveForward(Input.GetKey(KeyCode.W));
         this.MoveBackwards(Input.GetKey(KeyCode.S));
         this.MoveLeft(Input.GetKey(KeyCode.A));
@@ -62,10 +63,10 @@ public class PlayerController : CharacterController
     {
         if(this.movementState != MovementState.Still)
         {
-            var from = Vector3.ProjectOnPlane(this.transform.forward.normalized, Vector3.up);
-            var to = Vector3.ProjectOnPlane(this.camera.transform.forward.normalized, Vector3.up);
-            var angle = Vector3.SignedAngle(from, to, Vector3.up);
-            this.transform.Rotate(Vector3.up, angle);
+            var v = this.camera.transform.eulerAngles;
+            var t = this.transform.eulerAngles;
+            Quaternion rotation = Quaternion.Euler(t.x, v.y, t.z);
+            this.transform.rotation = Quaternion.Lerp(transform.rotation, rotation, this.cameraSmoothingMultiplier * Time.deltaTime);
         }
 
         this.cameraXRotation += xDiff * this.mouseSensitivity * Time.deltaTime;
@@ -74,10 +75,8 @@ public class PlayerController : CharacterController
         float y = -this.cameraDistance * Mathf.Cos(this.cameraYRotation);
         float x = -this.cameraDistance * Mathf.Cos(this.cameraXRotation) * Mathf.Sin(this.cameraYRotation);
         float z = this.cameraDistance * Mathf.Sin(this.cameraXRotation) * Mathf.Sin(this.cameraYRotation);
-        Vector3 position = new Vector3(x, y, z);
-        this.cameraPosition = position;
+        this.cameraPosition = new Vector3(x, y, z);
         this.camera.transform.position = Vector3.Lerp(this.camera.transform.position, this.transform.position + this.cameraPosition, this.cameraSmoothingMultiplier * Time.deltaTime);
-        //this.camera.transform.position = this.transform.position + this.cameraPosition;
         this.camera.transform.LookAt(this.transform.position);
     }
 
