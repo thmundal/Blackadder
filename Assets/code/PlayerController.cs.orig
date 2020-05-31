@@ -37,9 +37,16 @@ public class PlayerController : CharacterController
     public new void Update()
     {
         base.Update();
+<<<<<<< HEAD
         this.Sprint(Input.GetKey(KeyCode.LeftShift));
+        this.MoveForward(Input.GetKey(KeyCode.W));
+        this.MoveBackwards(Input.GetKey(KeyCode.S));
+        this.MoveLeft(Input.GetKey(KeyCode.A));
+        this.MoveRight(Input.GetKey(KeyCode.D));
+=======
 
         this.playerCameraFree = !Input.GetKey(KeyCode.Mouse1);
+        //Input.GetMouseButton(KeyCode.Mouse1);
 
         if (playerCameraFree)
         {
@@ -81,6 +88,7 @@ public class PlayerController : CharacterController
             this.MoveLeft(Input.GetKey(KeyCode.A));
             this.MoveRight(Input.GetKey(KeyCode.D));
         }
+>>>>>>> b7d0db81e3ae8fa2b1879b91a2fa8dbfe8a525fa
 
         if(Input.GetKeyDown(KeyCode.Space))
         {
