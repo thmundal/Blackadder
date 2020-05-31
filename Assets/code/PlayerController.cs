@@ -59,26 +59,47 @@ public class PlayerController : CharacterController
         this.SetCameraPosition(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
     }
 
-    void SetCameraPosition(float xDiff, float yDiff, float zDiff = 0)
+    void SetCameraPosition(float xDiff, float yDiff)
     {
-        if(this.movementState != MovementState.Still)
-        {
-            var v = this.camera.transform.eulerAngles;
-            var t = this.transform.eulerAngles;
-            Quaternion rotation = Quaternion.Euler(t.x, v.y, t.z);
-            this.transform.rotation = Quaternion.Lerp(transform.rotation, rotation, this.cameraSmoothingMultiplier * Time.deltaTime);
-        }
-
         this.cameraXRotation += xDiff * this.mouseSensitivity * Time.deltaTime;
         this.cameraYRotation += yDiff * this.mouseSensitivity * Time.deltaTime;
 
         float y = -this.cameraDistance * Mathf.Cos(this.cameraYRotation);
         float x = -this.cameraDistance * Mathf.Cos(this.cameraXRotation) * Mathf.Sin(this.cameraYRotation);
         float z = this.cameraDistance * Mathf.Sin(this.cameraXRotation) * Mathf.Sin(this.cameraYRotation);
+
         this.cameraPosition = new Vector3(x, y, z);
-        this.camera.transform.position = Vector3.Lerp(this.camera.transform.position, this.transform.position + this.cameraPosition, this.cameraSmoothingMultiplier * Time.deltaTime);
+        this.camera.transform.position = this.transform.position + this.cameraPosition;
         this.camera.transform.LookAt(this.transform.position);
+
+        var v = this.camera.transform.eulerAngles;
+        var t = this.transform.eulerAngles;
+
+        this.characterRotation = Quaternion.Euler(t.x, v.y, t.z);
     }
+
+    //void SetCameraPositionOld(float xDiff, float yDiff, float zDiff = 0)
+    //{
+    //    if(this.movementState != MovementState.Still)
+    //    {
+    //        var v = this.camera.transform.eulerAngles;
+    //        var t = this.transform.eulerAngles;
+    //        Quaternion rotation = Quaternion.Euler(t.x, v.y, t.z);
+    //        this.transform.rotation = Quaternion.Lerp(transform.rotation, rotation, this.cameraSmoothingMultiplier * Time.deltaTime);
+    //        //this.transform.rotation *= rotation;
+    //    }
+
+    //    this.cameraXRotation += xDiff * this.mouseSensitivity * Time.deltaTime;
+    //    this.cameraYRotation += yDiff * this.mouseSensitivity * Time.deltaTime;
+
+    //    float y = -this.cameraDistance * Mathf.Cos(this.cameraYRotation);
+    //    float x = -this.cameraDistance * Mathf.Cos(this.cameraXRotation) * Mathf.Sin(this.cameraYRotation);
+    //    float z = this.cameraDistance * Mathf.Sin(this.cameraXRotation) * Mathf.Sin(this.cameraYRotation);
+    //    this.cameraPosition = new Vector3(x, y, z);
+    //    this.camera.transform.position = Vector3.Lerp(this.camera.transform.position, this.transform.position + this.cameraPosition, this.cameraSmoothingMultiplier * Time.deltaTime);
+    //    //this.camera.transform.position += this.cameraPosition;
+    //    this.camera.transform.LookAt(this.transform.position);
+    //}
 
     void AttachMainCamera()
     {

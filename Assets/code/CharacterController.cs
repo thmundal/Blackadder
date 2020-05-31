@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class CharacterController : MonoBehaviour
 {
+    [SerializeField]
+    protected float characterRotationRate;
+
+    protected Quaternion characterRotation;
     protected MovementState movementState;
     // Base movement speed of the character being controlled
     [SerializeField]
@@ -57,6 +61,10 @@ public class CharacterController : MonoBehaviour
 
     // TODO: This should be calculated from a stats system
     private float movementSpeed => this.baseMovementSpeed;
+    public void Start()
+    {
+        this.characterRotation = this.transform.rotation;
+    }
     public void Update()
     {
         if(this.grounded)
@@ -100,6 +108,7 @@ public class CharacterController : MonoBehaviour
     {
         if(active)
         {
+            this.RotateToCharacterRotation();
             this.Move(this.transform.forward, this.movementSpeed);
             this.movementState |= MovementState.Forward;
         }
@@ -113,6 +122,7 @@ public class CharacterController : MonoBehaviour
     {
         if(active)
         {
+            this.RotateToCharacterRotation();
             this.Move(-this.transform.forward, this.movementSpeed);
             this.movementState |= MovementState.Backward;
         }
@@ -126,6 +136,7 @@ public class CharacterController : MonoBehaviour
     {
         if(active) 
         {
+            this.RotateToCharacterRotation();
             this.Move(this.transform.right, this.movementSpeed);
             this.movementState |= MovementState.Right;
         }
@@ -139,6 +150,7 @@ public class CharacterController : MonoBehaviour
     {
         if(active) 
         {
+            this.RotateToCharacterRotation();
             this.Move(-this.transform.right, this.movementSpeed);
             this.movementState |= MovementState.Left;
         }
@@ -146,6 +158,12 @@ public class CharacterController : MonoBehaviour
         {
             this.movementState &= ~MovementState.Left;
         }
+    }
+
+    protected void RotateToCharacterRotation()
+    {
+        this.transform.rotation = Quaternion.Lerp(this.transform.rotation, this.characterRotation, this.characterRotationRate * Time.deltaTime);
+        Debug.Log(this.transform.rotation);
     }
 }
 

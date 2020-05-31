@@ -196,15 +196,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5834da0ab8ea0445ae1d8a285935dbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterRotationRate: 4
   baseMovementSpeed: 1.8
   baseJumpStrength: 230
   grounded: 0
   maxCameraDistance: 5
-  minCameraDistance: -8
+  minCameraDistance: -4
   cameraPosition: {x: 0, y: 0, z: 0}
-  mouseSensitivity: 1
+  mouseSensitivity: 3
   controlledCameraDistance: 0
-  cameraSmoothingMultiplier: 10
+  cameraSmoothingMultiplier: 4
 --- !u!4 &811978937
 Transform:
   m_ObjectHideFlags: 0
