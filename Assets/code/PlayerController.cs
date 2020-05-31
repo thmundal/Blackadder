@@ -34,6 +34,7 @@ public class PlayerController : CharacterController
     public new void Update()
     {
         base.Update();
+        this.Sprint(Input.GetKey(KeyCode.LeftShift));
         this.MoveForward(Input.GetKey(KeyCode.W));
         this.MoveBackwards(Input.GetKey(KeyCode.S));
         this.MoveLeft(Input.GetKey(KeyCode.A));

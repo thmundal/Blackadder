@@ -13,6 +13,12 @@ public class CharacterController : MonoBehaviour
     [SerializeField]
     protected float baseMovementSpeed;
 
+    [SerializeField]
+    protected float sprintMultiplier;
+
+    [SerializeField, ReadOnly]
+    protected bool isSprinting;
+
     // Base jump strength
     [SerializeField]
     protected float baseJumpStrength;
@@ -114,8 +120,8 @@ public class CharacterController : MonoBehaviour
 
         bool horVert = (forward || backward) && (left || right);
 
-        float horizontalValue = 1.0f;
-        float verticalValue = 1.0f;
+        float horizontalValue = this.isSprinting ? 2.0f : 1.0f;
+        float verticalValue = this.isSprinting ? 2.0f : 1.0f;
 
         this.animator.SetFloat("vertical", verticalValue * horizontalDirection);
         this.animator.SetFloat("horizontal", horizontalValue * verticalDirection);
@@ -132,26 +138,22 @@ public class CharacterController : MonoBehaviour
         {
             if(!this.grounded && this.rigidBody.velocity.y > 0)
             {
-                //this.groundCollider.position = new Vector3(0, 1.5f, 0);
                 this.collider.center = new Vector3(0, 1.5f, 0);
             }
             else
             {
-                //this.groundCollider.position = this.groundColliderOffset;
                 this.collider.center = this.capsuleColliderOffset;
             }
-
             this.grounded = this.groundCollider.grounded;
-            //Vector3 center = this.collider.bounds.center;
-            //float length = (this.collider.height / 2) + 0.07f;
-            //Debug.DrawRay(this.collider.bounds.center, this.collider.transform.TransformDirection(Vector3.down) * length, Color.red);
-            //this.grounded = Physics.Raycast(this.collider.bounds.center, this.collider.transform.TransformDirection(Vector3.down), length);
         }
     }
 
     protected void Move(Vector3 direction, float speed)
     {
-        //this.rigidBody.MovePosition(this.rigidBody.transform.position + (direction * speed * Time.deltaTime));
+        if(this.isSprinting)
+        {
+            speed *= this.sprintMultiplier;
+        }
         this.transform.position += direction * speed * Time.deltaTime;
     }
 
@@ -217,6 +219,11 @@ public class CharacterController : MonoBehaviour
         {
             this.movementState &= ~MovementState.Left;
         }
+    }
+
+    protected void Sprint(bool active)
+    {
+        this.isSprinting = active;
     }
 
     protected void RotateToCharacterRotation()
