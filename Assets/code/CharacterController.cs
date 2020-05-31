@@ -84,12 +84,13 @@ public class CharacterController : MonoBehaviour
     private float movementSpeed => this.baseMovementSpeed;
     public void Start()
     {
-        this.characterRotation = this.transform.rotation;
+        this.characterRotation = this.rigidBody.transform.rotation;
     }
     public void Update()
     {
         if(this.grounded)
         {
+            this.Move(Vector3.zero, 0);
             this.animator.SetBool("jumping", false);
             this.animator.SetBool("falling", false);
             this.animator.SetBool("grounded", true);
@@ -154,7 +155,8 @@ public class CharacterController : MonoBehaviour
         {
             speed *= this.sprintMultiplier;
         }
-        this.transform.position += direction * speed * Time.deltaTime;
+        Vector3 target = new Vector3(direction.x * speed * Time.deltaTime, this.rigidBody.velocity.y, direction.z * speed * Time.deltaTime);
+        this.rigidBody.velocity = target;
     }
 
     protected void Jump()
@@ -169,8 +171,7 @@ public class CharacterController : MonoBehaviour
     {
         if(active)
         {
-            this.RotateToCharacterRotation();
-            this.Move(this.transform.forward, this.movementSpeed);
+            this.Move(this.rigidBody.transform.forward, this.movementSpeed);
             this.movementState |= MovementState.Forward;
         }
         else
@@ -183,8 +184,7 @@ public class CharacterController : MonoBehaviour
     {
         if(active)
         {
-            this.RotateToCharacterRotation();
-            this.Move(-this.transform.forward, this.movementSpeed);
+            this.Move(-this.rigidBody.transform.forward, this.movementSpeed);
             this.movementState |= MovementState.Backward;
         }
         else
@@ -197,8 +197,7 @@ public class CharacterController : MonoBehaviour
     {
         if(active) 
         {
-            this.RotateToCharacterRotation();
-            this.Move(this.transform.right, this.movementSpeed);
+            this.Move(this.rigidBody.transform.right, this.movementSpeed);
             this.movementState |= MovementState.Right;
         }
         else 
@@ -211,8 +210,7 @@ public class CharacterController : MonoBehaviour
     {
         if(active) 
         {
-            this.RotateToCharacterRotation();
-            this.Move(-this.transform.right, this.movementSpeed);
+            this.Move(-this.rigidBody.transform.right, this.movementSpeed);
             this.movementState |= MovementState.Left;
         }
         else
@@ -228,8 +226,7 @@ public class CharacterController : MonoBehaviour
 
     protected void RotateToCharacterRotation()
     {
-        this.transform.rotation = Quaternion.Lerp(this.transform.rotation, this.characterRotation, this.characterRotationRate * Time.deltaTime);
-        Debug.Log(this.transform.rotation);
+        this.rigidBody.transform.rotation = Quaternion.Lerp(this.rigidBody.transform.rotation, this.characterRotation, this.characterRotationRate * Time.deltaTime);
     }
 }
 

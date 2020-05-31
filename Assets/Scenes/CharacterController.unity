@@ -710,7 +710,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterRotationRate: 4
-  baseMovementSpeed: 1.8
+  baseMovementSpeed: 100
   sprintMultiplier: 3
   isSprinting: 0
   baseJumpStrength: 230
@@ -722,6 +722,7 @@ MonoBehaviour:
   mouseSensitivity: 3
   controlledCameraDistance: 0
   cameraSmoothingMultiplier: 4
+  playerCameraFree: 0
 --- !u!4 &811978937
 Transform:
   m_ObjectHideFlags: 0

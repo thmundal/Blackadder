@@ -68,18 +68,31 @@ public class PlayerController : CharacterController
                 moveForward = true;
             }
             float deltaAngleDeg = Mathf.Atan2(y, x) * Mathf.Rad2Deg;
-            this.characterRotation *= Quaternion.AngleAxis(deltaAngleDeg, this.transform.up);
-            this.MoveForward(moveForward);
-            this.MoveBackwards(false);
-            this.MoveLeft(false);
-            this.MoveRight(false);
+            this.characterRotation *= Quaternion.AngleAxis(deltaAngleDeg, this.rigidBody.transform.up);
+            
+            if(this.grounded) 
+            {
+                this.MoveForward(moveForward);
+                this.MoveBackwards(false);
+                this.MoveLeft(false);
+                this.MoveRight(false);
+            }
         }
         else
         {
-            this.MoveForward(Input.GetKey(KeyCode.W));
-            this.MoveBackwards(Input.GetKey(KeyCode.S));
-            this.MoveLeft(Input.GetKey(KeyCode.A));
-            this.MoveRight(Input.GetKey(KeyCode.D));
+            
+            if(this.grounded) 
+            {
+                this.MoveForward(Input.GetKey(KeyCode.W));
+                this.MoveBackwards(Input.GetKey(KeyCode.S));
+                this.MoveLeft(Input.GetKey(KeyCode.A));
+                this.MoveRight(Input.GetKey(KeyCode.D));
+            }
+        }
+        
+        if(this.movementState != MovementState.Still || !this.playerCameraFree)
+        {
+            this.RotateToCharacterRotation();
         }
 
         if(Input.GetKeyDown(KeyCode.Space))
@@ -116,33 +129,10 @@ public class PlayerController : CharacterController
         this.camera.transform.LookAt(this.transform.position);
 
         var v = this.camera.transform.eulerAngles;
-        var t = this.transform.eulerAngles;
+        var t = this.rigidBody.transform.eulerAngles;
 
         this.characterRotation = Quaternion.Euler(t.x, v.y, t.z);
     }
-
-    //void SetCameraPositionOld(float xDiff, float yDiff, float zDiff = 0)
-    //{
-    //    if(this.movementState != MovementState.Still)
-    //    {
-    //        var v = this.camera.transform.eulerAngles;
-    //        var t = this.transform.eulerAngles;
-    //        Quaternion rotation = Quaternion.Euler(t.x, v.y, t.z);
-    //        this.transform.rotation = Quaternion.Lerp(transform.rotation, rotation, this.cameraSmoothingMultiplier * Time.deltaTime);
-    //        //this.transform.rotation *= rotation;
-    //    }
-
-    //    this.cameraXRotation += xDiff * this.mouseSensitivity * Time.deltaTime;
-    //    this.cameraYRotation += yDiff * this.mouseSensitivity * Time.deltaTime;
-
-    //    float y = -this.cameraDistance * Mathf.Cos(this.cameraYRotation);
-    //    float x = -this.cameraDistance * Mathf.Cos(this.cameraXRotation) * Mathf.Sin(this.cameraYRotation);
-    //    float z = this.cameraDistance * Mathf.Sin(this.cameraXRotation) * Mathf.Sin(this.cameraYRotation);
-    //    this.cameraPosition = new Vector3(x, y, z);
-    //    this.camera.transform.position = Vector3.Lerp(this.camera.transform.position, this.transform.position + this.cameraPosition, this.cameraSmoothingMultiplier * Time.deltaTime);
-    //    //this.camera.transform.position += this.cameraPosition;
-    //    this.camera.transform.LookAt(this.transform.position);
-    //}
 
     void AttachMainCamera()
     {
