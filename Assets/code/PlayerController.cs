@@ -24,6 +24,9 @@ public class PlayerController : CharacterController
 
     private float cameraDistance => -(this.maxCameraDistance + Mathf.Max(this.minCameraDistance, Mathf.Min(this.controlledCameraDistance, this.maxCameraDistance)));
 
+    [SerializeField]
+    private bool playerCameraFree = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -34,10 +37,31 @@ public class PlayerController : CharacterController
     public new void Update()
     {
         base.Update();
-        this.MoveForward(Input.GetKey(KeyCode.W));
-        this.MoveBackwards(Input.GetKey(KeyCode.S));
-        this.MoveLeft(Input.GetKey(KeyCode.A));
-        this.MoveRight(Input.GetKey(KeyCode.D));
+
+        if (playerCameraFree)
+        {
+            float deltaAngle = 0f;
+            if (Input.GetKey(KeyCode.D))
+            {
+                deltaAngle += 90f;
+            }
+            if (Input.GetKey(KeyCode.A))
+            {
+                deltaAngle -= 90f;
+            }
+            if (Input.GetKey(KeyCode.S))
+            {
+                deltaAngle += 180f;
+            }
+            //this.characterRotation *= deltaAngle;
+        }
+        else
+        {
+            this.MoveForward(Input.GetKey(KeyCode.W));
+            this.MoveBackwards(Input.GetKey(KeyCode.S));
+            this.MoveLeft(Input.GetKey(KeyCode.A));
+            this.MoveRight(Input.GetKey(KeyCode.D));
+        }
 
         if(Input.GetKeyDown(KeyCode.Space))
         {
