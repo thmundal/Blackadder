@@ -24,6 +24,9 @@ public class PlayerController : CharacterController
 
     private float cameraDistance => -(this.maxCameraDistance + Mathf.Max(this.minCameraDistance, Mathf.Min(this.controlledCameraDistance, this.maxCameraDistance)));
 
+    [SerializeField]
+    private bool playerCameraFree = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -34,11 +37,50 @@ public class PlayerController : CharacterController
     public new void Update()
     {
         base.Update();
-        this.Sprint(Input.GetKey(KeyCode.LeftShift));
-        this.MoveForward(Input.GetKey(KeyCode.W));
-        this.MoveBackwards(Input.GetKey(KeyCode.S));
-        this.MoveLeft(Input.GetKey(KeyCode.A));
-        this.MoveRight(Input.GetKey(KeyCode.D));
+
+        this.playerCameraFree = !Input.GetKey(KeyCode.Mouse1);
+        //Input.GetMouseButton(KeyCode.Mouse1);
+
+        if (playerCameraFree)
+        {
+            int x = 0;
+            int y = 0;
+            bool moveForward = false;
+
+            if (Input.GetKey(KeyCode.W))
+            {
+                x += 1;
+                moveForward = true;
+            }
+            if (Input.GetKey(KeyCode.S))
+            {
+                x -= 1;
+                moveForward = true;
+            }
+            if (Input.GetKey(KeyCode.D))
+            {
+                y += 1;
+                moveForward = true;
+            }
+            if (Input.GetKey(KeyCode.A))
+            {
+                y -= 1;
+                moveForward = true;
+            }
+            float deltaAngleDeg = Mathf.Atan2(y, x) * Mathf.Rad2Deg;
+            this.characterRotation *= Quaternion.AngleAxis(deltaAngleDeg, this.transform.up);
+            this.MoveForward(moveForward);
+            this.MoveBackwards(false);
+            this.MoveLeft(false);
+            this.MoveRight(false);
+        }
+        else
+        {
+            this.MoveForward(Input.GetKey(KeyCode.W));
+            this.MoveBackwards(Input.GetKey(KeyCode.S));
+            this.MoveLeft(Input.GetKey(KeyCode.A));
+            this.MoveRight(Input.GetKey(KeyCode.D));
+        }
 
         if(Input.GetKeyDown(KeyCode.Space))
         {
