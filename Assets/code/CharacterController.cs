@@ -16,29 +16,44 @@ public class CharacterController : MonoBehaviour
     [SerializeField, ReadOnly]
     protected bool grounded;
 
-    private Animator anim;
+    [SerializeField]
+    private bool canJump;
+
+    private readonly Vector3 groundColliderOffset = new Vector3(0, 0.0f, 0);
+    private readonly Vector3 capsuleColliderOffset = new Vector3(0, 0.9f, 0);
+    private Animator _animator;
+    private GroundCollider _groundCollider;
+    protected GroundCollider groundCollider {
+        get {
+            if(!this._groundCollider)
+            {
+                this._groundCollider = this.GetComponentInChildren<GroundCollider>();
+            }
+            return this._groundCollider;
+        }
+    }
     protected Animator animator
     {
         get
         {
-            if(!this.anim)
+            if(!this._animator)
             {
-                this.anim = this.GetComponentInChildren<Animator>();
+                this._animator = this.GetComponentInChildren<Animator>();
             }
-            return this.anim;
+            return this._animator;
         }
     }
 
-    private Rigidbody rb;
+    private Rigidbody _rigidBody;
     protected Rigidbody rigidBody
     {
         get
         {
-            if(!this.rb)
+            if(!this._rigidBody)
             {
-                this.rb = this.gameObject.GetComponent<Rigidbody>();
+                this._rigidBody = this.gameObject.GetComponent<Rigidbody>();
             }
-            return this.rb;
+            return this._rigidBody;
         }
     }
 
@@ -62,23 +77,67 @@ public class CharacterController : MonoBehaviour
         if(this.grounded)
         {
             this.animator.SetBool("jumping", false);
-        } 
-        else
+            this.animator.SetBool("falling", false);
+            this.animator.SetBool("grounded", true);
+            if(!this.canJump)
+            {
+                this.Invoke("SetCanJump", 0.25f);
+            }
+        }
+        else if(this.rigidBody.velocity.y < 0)
+        {
+            this.animator.SetBool("grounded", false);
+            this.animator.SetBool("falling", true);
+            this.canJump = false;
+        }
+        else if(this.canJump)
         {
             this.animator.SetBool("jumping", true);
+            this.canJump = false;
         }
-        this.animator.SetBool("forward", (this.movementState & MovementState.Forward) != 0);
-        this.animator.SetBool("strafe_left", (this.movementState & MovementState.Left) != 0);
-        this.animator.SetBool("strafe_right", (this.movementState & MovementState.Right) != 0);
+
+        bool forward = (this.movementState & MovementState.Forward) != 0;
+        bool backward = (this.movementState & MovementState.Backward) != 0;
+        bool left = (this.movementState & MovementState.Left) != 0;
+        bool right = (this.movementState & MovementState.Right) != 0;
+
+        int horizontalDirection = (forward || backward ? (forward ? 1 : -1) : 0);
+        int verticalDirection = (right || left ? (right ? 1 : -1) : 0);
+
+        bool horVert = (forward || backward) && (left || right);
+
+        float horizontalValue = 1.0f;
+        float verticalValue = 1.0f;
+
+        this.animator.SetFloat("vertical", verticalValue * horizontalDirection);
+        this.animator.SetFloat("horizontal", horizontalValue * verticalDirection);
     }
+
+    private void SetCanJump()
+    {
+        this.canJump = true;
+    }
+
     private void FixedUpdate()
     {
         if(this.collider)
         {
-            Vector3 center = this.collider.bounds.center;
-            float length = (this.collider.height / 2) + 0.05f;
-            Debug.DrawRay(this.collider.bounds.center, this.collider.transform.TransformDirection(Vector3.down) * length, Color.red);
-            this.grounded = Physics.Raycast(this.collider.bounds.center, this.collider.transform.TransformDirection(Vector3.down), length);
+            if(!this.grounded && this.rigidBody.velocity.y > 0)
+            {
+                //this.groundCollider.position = new Vector3(0, 1.5f, 0);
+                this.collider.center = new Vector3(0, 1.5f, 0);
+            }
+            else
+            {
+                //this.groundCollider.position = this.groundColliderOffset;
+                this.collider.center = this.capsuleColliderOffset;
+            }
+
+            this.grounded = this.groundCollider.grounded;
+            //Vector3 center = this.collider.bounds.center;
+            //float length = (this.collider.height / 2) + 0.07f;
+            //Debug.DrawRay(this.collider.bounds.center, this.collider.transform.TransformDirection(Vector3.down) * length, Color.red);
+            //this.grounded = Physics.Raycast(this.collider.bounds.center, this.collider.transform.TransformDirection(Vector3.down), length);
         }
     }
 
@@ -90,7 +149,7 @@ public class CharacterController : MonoBehaviour
 
     protected void Jump()
     {
-        if(this.grounded)
+        if(this.grounded && this.canJump)
         {
             this.rigidBody.AddForce(Vector3.up * this.baseJumpStrength);
         }
