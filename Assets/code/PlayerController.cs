@@ -38,22 +38,41 @@ public class PlayerController : CharacterController
     {
         base.Update();
 
+        this.playerCameraFree = !Input.GetKey(KeyCode.Mouse1);
+        //Input.GetMouseButton(KeyCode.Mouse1);
+
         if (playerCameraFree)
         {
-            float deltaAngle = 0f;
-            if (Input.GetKey(KeyCode.D))
+            int x = 0;
+            int y = 0;
+            bool moveForward = false;
+
+            if (Input.GetKey(KeyCode.W))
             {
-                deltaAngle += 90f;
-            }
-            if (Input.GetKey(KeyCode.A))
-            {
-                deltaAngle -= 90f;
+                x += 1;
+                moveForward = true;
             }
             if (Input.GetKey(KeyCode.S))
             {
-                deltaAngle += 180f;
+                x -= 1;
+                moveForward = true;
             }
-            //this.characterRotation *= deltaAngle;
+            if (Input.GetKey(KeyCode.D))
+            {
+                y += 1;
+                moveForward = true;
+            }
+            if (Input.GetKey(KeyCode.A))
+            {
+                y -= 1;
+                moveForward = true;
+            }
+            float deltaAngleDeg = Mathf.Atan2(y, x) * Mathf.Rad2Deg;
+            this.characterRotation *= Quaternion.AngleAxis(deltaAngleDeg, this.transform.up);
+            this.MoveForward(moveForward);
+            this.MoveBackwards(false);
+            this.MoveLeft(false);
+            this.MoveRight(false);
         }
         else
         {
